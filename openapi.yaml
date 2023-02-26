@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  title: URL Shortener API
+  description: API for shortening URLs
+  version: 1.0.0
+servers:
+  - url: "http://localhost:3000"
+    description: For local development
+paths:
+  /shorten-urls:
+    post:
+      summary: Create a shortened URL
+      description: Takes a long URL and returns a shortened URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                urlAddress:
+                  type: string
+                  format: uri
+              required:
+                - urlAddress
+      responses:
+        "201":
+          description: successfully created short URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shortUrlId:
+                    type: string
+                  originalUrl:
+                    type: string
+        "400":
+          description: Invalid URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "409":
+          description: Url exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  "/shorten-urls/{shortUrlId}":
+    get:
+      summary: Redirect to the original long URL
+      description: Takes a shortened URL and redirects to the original long URL
+      parameters:
+        - in: path
+          name: shortUrlId
+          required: true
+          schema:
+            type: string
+      responses:
+        "301":
+          description: Redirect to the original long URL
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The location to redirect to
+        "404":
+          description: Short URL not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
