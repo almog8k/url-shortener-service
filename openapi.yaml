@@ -10,6 +10,8 @@ paths:
   /shorten-urls:
     post:
       summary: Create a shortened URL
+      tags:
+        - Short-Urls
       description: Takes a long URL and returns a shortened URL
       requestBody:
         required: true
@@ -65,6 +67,8 @@ paths:
   "/shorten-urls/{shortUrlId}":
     get:
       summary: Redirect to the original long URL
+      tags:
+        - Short-Urls
       description: Takes a shortened URL and redirects to the original long URL
       parameters:
         - in: path
