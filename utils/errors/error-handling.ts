@@ -1,7 +1,9 @@
-import { logger } from "@practica/logger";
+import { logger } from "../logger/logger-wrapper";
 import * as Http from "http";
 import util from "util";
-import { SharedLogContext } from "./shared-logger-context";
+import { SharedLogContext } from "../logger/definition";
+import { AppError, UrlExistError, ValidationError } from "./errors";
+import { HttpStatusCode } from "axios";
 
 let httpServerRef: Http.Server;
 
@@ -34,12 +36,12 @@ const errorHandler = {
   handleError: (errorToHandle: unknown) => {
     try {
       const appError: AppError = normalizeError(errorToHandle);
-      const { stack, ...rest } = appError;
-      logger.error(`${appError.message}: ${util.inspect(rest)}`, appError);
+      logger.error(`${appError.message}: ${util.inspect(appError)}`);
 
       if (!appError.isTrusted) {
         terminateHttpServerAndExit();
       }
+      return appError;
     } catch (handlingError: unknown) {
       process.stdout.write(
         "The error handler failed, here are the handler failure and then the origin error that it tried to handle"
@@ -61,6 +63,24 @@ const normalizeError = (errorToHandle: unknown): AppError => {
   if (errorToHandle instanceof AppError) {
     return errorToHandle;
   }
+  if (errorToHandle instanceof ValidationError) {
+    const appError = new AppError(
+      errorToHandle.name,
+      errorToHandle.message,
+      errorToHandle.logContext,
+      HttpStatusCode.BadRequest
+    );
+    return appError;
+  }
+  if (errorToHandle instanceof UrlExistError) {
+    const appError = new AppError(
+      errorToHandle.name,
+      errorToHandle.message,
+      errorToHandle.logContext,
+      HttpStatusCode.Conflict
+    );
+    return appError;
+  }
   if (errorToHandle instanceof Error) {
     const appError = new AppError(errorToHandle.name, errorToHandle.message);
     appError.stack = errorToHandle.stack;
@@ -75,15 +95,4 @@ const normalizeError = (errorToHandle: unknown): AppError => {
   );
 };
 
-class AppError extends Error {
-  constructor(
-    public name: string,
-    public message: string,
-    public logContext?: SharedLogContext,
-    public HTTPStatus: number = 500,
-    public isTrusted = true
-  ) {
-    super(message);
-  }
-}
 export { errorHandler, AppError };

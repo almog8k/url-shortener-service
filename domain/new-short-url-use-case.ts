@@ -1,19 +1,20 @@
 import { generateShortId } from "./shortener-service";
 import { UrlDTO } from "./url-schema";
-import { logger } from "@practica/logger";
 import { assertUrlIsValid } from "./url-validator";
 import * as urlRepository from "../data-access/url-repository";
-import { SharedLogContext } from "../utils/shared-logger-context";
-import { AppError } from "../utils/error-handling";
+import { AppError } from "../utils/errors/error-handling";
 import { UrlResponse } from "./url-response";
+import { logger } from "../utils/logger/logger-wrapper";
+import { SharedLogContext } from "../utils/logger/definition";
+import { UrlExistError } from "../utils/errors/errors";
 
 const SHARED_LOG_CONTEXT: SharedLogContext = {
   dirname: __dirname,
   filename: __filename,
 };
 
-export async function addShortUrl(url: UrlDTO): Promise<UrlResponse> {
-  SHARED_LOG_CONTEXT.functionName = addShortUrl.name;
+export async function addUrl(url: UrlDTO): Promise<UrlResponse> {
+  SHARED_LOG_CONTEXT.functionName = addUrl.name;
   SHARED_LOG_CONTEXT.metadata = { url };
 
   assertUrlIsValid(url);
@@ -23,7 +24,7 @@ export async function addShortUrl(url: UrlDTO): Promise<UrlResponse> {
 
   const urlShortId = await getUniqueShortId(urlAddress);
 
-  await urlRepository.addShortUrl({
+  await urlRepository.addUrl({
     originalUrl: urlAddress,
     urlShortId,
   });
@@ -35,17 +36,11 @@ export async function addShortUrl(url: UrlDTO): Promise<UrlResponse> {
 }
 
 async function assertUrlDoesNotExist(urlAddress: string): Promise<void> {
-  SHARED_LOG_CONTEXT.functionName = addShortUrl.name;
+  SHARED_LOG_CONTEXT.functionName = assertUrlDoesNotExist.name;
   SHARED_LOG_CONTEXT.metadata = { urlAddress };
   const urlExist = await urlRepository.isUrlExist(urlAddress);
   if (urlExist) {
-    throw new AppError(
-      "url-exist-error",
-      "URL address already exist",
-      SHARED_LOG_CONTEXT,
-      409,
-      true
-    );
+    throw new UrlExistError(SHARED_LOG_CONTEXT);
   }
 }
 

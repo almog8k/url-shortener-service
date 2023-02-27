@@ -1,5 +1,5 @@
 import express from "express";
-import { logger } from "@practica/logger";
+import { logger } from "../../utils/logger/logger-wrapper";
 import util from "util";
 import * as newShortUrlUseCase from "../../domain/new-short-url-use-case";
 import { HttpStatusCode } from "axios";
@@ -14,7 +14,7 @@ export default function defineRoutes(expressApp: express.Application) {
           req.body
         )} `
       );
-      const shortUrlResponse = await newShortUrlUseCase.addShortUrl(req.body);
+      const shortUrlResponse = await newShortUrlUseCase.addUrl(req.body);
 
       return res.status(HttpStatusCode.Created).json(shortUrlResponse);
     } catch (error) {

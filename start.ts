@@ -1,8 +1,8 @@
-import { logger } from "@practica/logger";
+import { logger } from "./utils/logger/logger-wrapper";
 import { startWebServer } from "./entry-points/api/server";
 import util from "util";
-import { AppError, errorHandler } from "./utils/error-handling";
-import { SharedLogContext } from "./utils/shared-logger-context";
+import { AppError, errorHandler } from "./utils/errors/error-handling";
+import { SharedLogContext } from "./utils/logger/definition";
 
 const SHARED_LOG_CONTEXT: SharedLogContext = {
   dirname: __dirname,
@@ -22,12 +22,6 @@ start()
   })
   .catch((error) => {
     errorHandler.handleError(
-      new AppError(
-        "startup-failure",
-        error.message,
-        SHARED_LOG_CONTEXT,
-        500,
-        false
-      )
+      new AppError("startup-failure", error.message, SHARED_LOG_CONTEXT, 500)
     );
   });

@@ -1,8 +1,9 @@
 import { UrlDTO, UrlSchema } from "./url-schema";
 import util from "util";
-import { logger } from "@practica/logger";
-import { AppError } from "../utils/error-handling";
-import { SharedLogContext } from "../utils/shared-logger-context";
+import { AppError } from "../utils/errors/error-handling";
+import { logger } from "../utils/logger/logger-wrapper";
+import { SharedLogContext } from "../utils/logger/definition";
+import { ValidationError } from "../utils/errors/errors";
 
 const SHARED_LOG_CONTEXT: SharedLogContext = {
   dirname: __dirname,
@@ -15,13 +16,7 @@ export function assertUrlIsValid(url: UrlDTO) {
   logger.debug(`Validating url ${util.inspect(url)}`);
   const isValid = UrlSchema.safeParse(url);
   if (!isValid.success) {
-    throw new AppError(
-      "invalid-url",
-      "Url is not valid",
-      SHARED_LOG_CONTEXT,
-      400,
-      true
-    );
+    throw new ValidationError("Invalid Url", SHARED_LOG_CONTEXT);
   }
   logger.debug(`Url ${util.inspect(url)} is valid`);
 }

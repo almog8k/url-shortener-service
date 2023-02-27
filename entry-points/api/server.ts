@@ -1,15 +1,17 @@
 import { Server } from "http";
 import { AddressInfo } from "net";
-import * as configurationProvider from "@practica/configuration-provider";
-import configurationSchema from "../../config";
-import { logger } from "@practica/logger";
+import * as configurationProvider from "../../utils/configuration/configuration-provider";
+import { configurationSchema } from "../../config";
+import { logger } from "../../utils/logger/logger-wrapper";
+import { LOG_LEVELS } from "../../utils/logger/definition";
 import express from "express";
 import helmet from "helmet";
 import defineRoutes from "./routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import path from "path";
-import { AppError, errorHandler } from "../../utils/error-handling";
+import { AppError, errorHandler } from "../../utils/errors/error-handling";
+import { BaseError } from "../../utils/errors/errors";
 
 let connection: Server;
 
@@ -20,7 +22,7 @@ async function startWebServer(): Promise<AddressInfo> {
       prettyPrint: Boolean(
         configurationProvider.getValue("logger.prettyPrint")
       ),
-      level: "debug",
+      level: configurationProvider.getValue("logger.level") as LOG_LEVELS,
     },
     true
   );
@@ -53,7 +55,7 @@ async function openConnection(
 function defineErrorHandlingMiddleware(expressApp: express.Application) {
   expressApp.use(
     async (
-      error: AppError,
+      error: BaseError,
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
@@ -63,9 +65,9 @@ function defineErrorHandlingMiddleware(expressApp: express.Application) {
           error.isTrusted = true;
         }
       }
-      errorHandler.handleError(error);
+      const handledError = errorHandler.handleError(error);
       res
-        .status(error?.HTTPStatus || 500)
+        .status(handledError?.HTTPStatus || 500)
         .json({ message: error.message })
         .end();
     }
