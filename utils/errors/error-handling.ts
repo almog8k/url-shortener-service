@@ -1,9 +1,9 @@
 import { logger } from "../logger/logger-wrapper";
 import * as Http from "http";
 import util from "util";
-import { SharedLogContext } from "../logger/definition";
-import { AppError, UrlExistError, ValidationError } from "./errors";
+import { AppError, ValidationError } from "./errors";
 import { HttpStatusCode } from "axios";
+import { UrlExistError } from "../../domain/url-errors";
 
 let httpServerRef: Http.Server;
 

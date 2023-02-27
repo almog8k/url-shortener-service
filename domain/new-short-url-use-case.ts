@@ -2,11 +2,10 @@ import { generateShortId } from "./shortener-service";
 import { UrlDTO } from "./url-schema";
 import { assertUrlIsValid } from "./url-validator";
 import * as urlRepository from "../data-access/url-repository";
-import { AppError } from "../utils/errors/error-handling";
 import { UrlResponse } from "./url-response";
 import { logger } from "../utils/logger/logger-wrapper";
 import { SharedLogContext } from "../utils/logger/definition";
-import { UrlExistError } from "../utils/errors/errors";
+import { UrlExistError } from "./url-errors";
 
 const SHARED_LOG_CONTEXT: SharedLogContext = {
   dirname: __dirname,

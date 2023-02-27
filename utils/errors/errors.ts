@@ -19,12 +19,6 @@ export class ValidationError extends BaseError {
   }
 }
 
-export class UrlExistError extends BaseError {
-  constructor(logContext: SharedLogContext) {
-    super("Url Exist Error", "Url already exist", logContext);
-  }
-}
-
 export class AppError extends BaseError {
   constructor(
     public name: string,
@@ -33,6 +27,6 @@ export class AppError extends BaseError {
     public HTTPStatus: number = 500,
     public isTrusted = true
   ) {
-    super(name, message, logContext);
+    super(name, message, logContext, isTrusted);
   }
 }
