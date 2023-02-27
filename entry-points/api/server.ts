@@ -68,7 +68,7 @@ function defineErrorHandlingMiddleware(expressApp: express.Application) {
       const handledError = errorHandler.handleError(error);
       res
         .status(handledError?.HTTPStatus || 500)
-        .json({ message: error.message })
+        .json({ message: handledError?.message || "internal server error" })
         .end();
     }
   );
