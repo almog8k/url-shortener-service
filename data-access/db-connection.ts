@@ -7,7 +7,7 @@ let dbConnection: DatabaseConnection;
 export default function getDbConnection() {
   try {
     if (!dbConnection) {
-      const dbName = configurationProvider.getValue("DB.dbName");
+      const dbName = configurationProvider.getValue<string>("DB.dbName");
       logger.info(`Connecting to DB ${dbName}`);
       dbConnection = connect(dbName);
     }

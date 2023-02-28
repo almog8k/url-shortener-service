@@ -1,4 +1,4 @@
-export type LOG_LEVELS = "debug" | "info" | "warn" | "error" | "critical";
+export type LOG_LEVEL = "debug" | "info" | "warn" | "error" | "critical";
 
 export interface Logger {
   info(message: string, ...args: unknown[]): void;
@@ -8,7 +8,7 @@ export interface Logger {
 }
 
 export interface LoggerConfiguration {
-  level: LOG_LEVELS;
+  level: LOG_LEVEL;
   prettyPrint: boolean;
 }
 

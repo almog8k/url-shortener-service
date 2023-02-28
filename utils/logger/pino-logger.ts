@@ -4,13 +4,13 @@ import {
   DestinationStream,
   LoggerOptions,
 } from "pino";
-import { LOG_LEVELS, Logger } from "./definition";
+import { LOG_LEVEL, Logger } from "./definition";
 
 export default class PinoLogger implements Logger {
   private readonly logger: PinoLoggerImpl;
 
   constructor(
-    private level: LOG_LEVELS,
+    private level: LOG_LEVEL,
     private prettyPrintEnabled: boolean,
     private destStream?: DestinationStream | string
   ) {

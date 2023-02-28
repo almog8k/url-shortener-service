@@ -1,4 +1,4 @@
-import { LOG_LEVELS } from "../logger/definition";
+import { LOG_LEVEL } from "../logger/definition";
 
 export type ConfigSchema = {
   port: {
@@ -20,8 +20,8 @@ export type ConfigSchema = {
   logger: {
     level: {
       doc: string;
-      format: LOG_LEVELS[];
-      default: LOG_LEVELS;
+      format: LOG_LEVEL[];
+      default: LOG_LEVEL;
       nullable: false;
       env: string;
     };

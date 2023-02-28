@@ -3,14 +3,14 @@ import { AddressInfo } from "net";
 import * as configurationProvider from "../../utils/configuration/configuration-provider";
 import { configurationSchema } from "../../config";
 import { logger } from "../../utils/logger/logger-wrapper";
-import { LOG_LEVELS } from "../../utils/logger/definition";
+import { LOG_LEVEL } from "../../utils/logger/definition";
 import express from "express";
 import helmet from "helmet";
 import defineRoutes from "./routes";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import path from "path";
-import { AppError, errorHandler } from "../../utils/errors/error-handling";
+import { errorHandler } from "../../utils/errors/error-handling";
 import { BaseError } from "../../utils/errors/errors";
 
 let connection: Server;
@@ -19,10 +19,9 @@ async function startWebServer(): Promise<AddressInfo> {
   configurationProvider.initialize(configurationSchema);
   logger.configureLogger(
     {
-      prettyPrint: Boolean(
-        configurationProvider.getValue("logger.prettyPrint")
-      ),
-      level: configurationProvider.getValue("logger.level") as LOG_LEVELS,
+      prettyPrint:
+        configurationProvider.getValue<boolean>("logger.prettyPrint"),
+      level: configurationProvider.getValue<LOG_LEVEL>("logger.level"),
     },
     true
   );
