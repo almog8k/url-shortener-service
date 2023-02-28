@@ -3,6 +3,7 @@ import { logger } from "../../utils/logger/logger-wrapper";
 import util from "util";
 import * as newShortUrlUseCase from "../../domain/new-short-url-use-case";
 import { HttpStatusCode } from "axios";
+import { ErrorResponse } from "../../utils/errors/errors";
 
 export default function defineRoutes(expressApp: express.Application) {
   const router = express.Router();
@@ -14,9 +15,9 @@ export default function defineRoutes(expressApp: express.Application) {
           req.body
         )} `
       );
-      const shortUrlResponse = await newShortUrlUseCase.addUrl(req.body);
+      const urlResponse = await newShortUrlUseCase.addUrl(req.body);
 
-      return res.status(HttpStatusCode.Created).json(shortUrlResponse);
+      return res.status(HttpStatusCode.Created).json(urlResponse);
     } catch (error) {
       next(error);
       return undefined;
@@ -38,9 +39,14 @@ export default function defineRoutes(expressApp: express.Application) {
 
       if (!originalUrl) {
         logger.info(`Short urlId "${shortUrlId}" was not found".`);
-        res.status(HttpStatusCode.NotFound).json({ message: "URL not found" });
+        const notFoundResponse: ErrorResponse = {
+          message: "URL not found",
+          code: HttpStatusCode.NotFound,
+        };
+        res.status(notFoundResponse.code).json(notFoundResponse);
         return;
       }
+
       logger.info(
         `Short urlId "${shortUrlId}" was successfully redirected to "${originalUrl}".`
       );

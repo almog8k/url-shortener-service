@@ -30,3 +30,8 @@ export class AppError extends BaseError {
     super(name, message, logContext, isTrusted);
   }
 }
+
+export type ErrorResponse = {
+  message: string;
+  code: number;
+};

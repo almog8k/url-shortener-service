@@ -1,6 +1,5 @@
 import { UrlDTO, UrlSchema } from "./url-schema";
 import util from "util";
-import { AppError } from "../utils/errors/error-handling";
 import { logger } from "../utils/logger/logger-wrapper";
 import { SharedLogContext } from "../utils/logger/definition";
 import { ValidationError } from "../utils/errors/errors";

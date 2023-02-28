@@ -44,7 +44,7 @@ async function assertUrlDoesNotExist(urlAddress: string): Promise<void> {
 }
 
 async function getUniqueShortId(urlAddress: string): Promise<string> {
-  let attempts = 1;
+  let attempts = 0;
   let exist = false;
   let urlShortId;
   logger.debug(`Generating short URL ID with  URL ${urlAddress}`);
@@ -55,7 +55,7 @@ async function getUniqueShortId(urlAddress: string): Promise<string> {
   } while (exist);
 
   logger.debug(
-    `Generated short URL ID ${urlShortId} after ${attempts - 1} attempts`
+    `Generated short URL ID ${urlShortId} after ${attempts} attempts`
   );
   return urlShortId;
 }

@@ -1,7 +1,7 @@
 import { logger } from "../logger/logger-wrapper";
 import * as Http from "http";
 import util from "util";
-import { AppError, ValidationError } from "./errors";
+import { AppError, ErrorResponse, ValidationError } from "./errors";
 import { HttpStatusCode } from "axios";
 import { UrlExistError } from "../../domain/url-errors";
 
@@ -49,6 +49,12 @@ const errorHandler = {
       process.stdout.write(JSON.stringify(handlingError));
       process.stdout.write(JSON.stringify(errorToHandle));
     }
+  },
+  getErrorResponse: (error: AppError | undefined): ErrorResponse => {
+    if (error === undefined) {
+      return { message: "Internal server error", code: 500 };
+    }
+    return { message: error.message, code: error.HTTPStatus };
   },
 };
 

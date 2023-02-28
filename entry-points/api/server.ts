@@ -66,10 +66,8 @@ function defineErrorHandlingMiddleware(expressApp: express.Application) {
         }
       }
       const handledError = errorHandler.handleError(error);
-      res
-        .status(handledError?.HTTPStatus || 500)
-        .json({ message: handledError?.message || "internal server error" })
-        .end();
+      const errorResponse = errorHandler.getErrorResponse(handledError);
+      res.status(errorResponse.code).json(errorResponse).end();
     }
   );
 }
