@@ -2,7 +2,7 @@
   "name": "url-shortener-service",
   "version": "1.0.0",
   "description": "API service for shortening URLs",
-  "main": "./.dist/start.js",
+  "main": "./.dist/src/start.js",
   "scripts": {
     "test:dev": "LOGGER_LEVEL=info PRETTY_PRINT=true DB_NAME=url_test_db jest ",
     "start:dev": "PORT=3000 LOGGER_LEVEL=debug PRETTY_PRINT=true nodemon start.ts",

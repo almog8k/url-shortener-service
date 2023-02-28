@@ -1,5 +1,5 @@
 import { sql } from "@databases/sqlite";
-import getDbConnection from "./db-connection";
+import getDbConnection from "../utils/DB/db-connection";
 import { randomUUID } from "crypto";
 import { logger } from "../utils/logger/logger-wrapper";
 import util from "util";

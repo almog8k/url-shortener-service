@@ -1,9 +1,10 @@
 import express from "express";
-import { logger } from "../../utils/logger/logger-wrapper";
+// import { logger } from "../../utils/logger/logger-wrapper";
 import util from "util";
-import * as newShortUrlUseCase from "../../domain/new-short-url-use-case";
+import * as newShortUrlUseCase from "./new-short-url-use-case";
 import { HttpStatusCode } from "axios";
-import { ErrorResponse } from "../../utils/errors/errors";
+import { ResponseError } from "../utils/errors/errors";
+import { logger } from "../utils/logger/logger-wrapper";
 
 export default function defineRoutes(expressApp: express.Application) {
   const router = express.Router();
@@ -39,7 +40,7 @@ export default function defineRoutes(expressApp: express.Application) {
 
       if (!originalUrl) {
         logger.info(`Short urlId "${shortUrlId}" was not found".`);
-        const notFoundResponse: ErrorResponse = {
+        const notFoundResponse: ResponseError = {
           message: "URL not found",
           code: HttpStatusCode.NotFound,
         };

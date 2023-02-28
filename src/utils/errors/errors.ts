@@ -24,14 +24,14 @@ export class AppError extends BaseError {
     public name: string,
     public message: string,
     public logContext?: SharedLogContext,
-    public HTTPStatus: number = 500,
+    public HTTPStatus: number = HttpStatusCode.InternalServerError,
     public isTrusted = true
   ) {
     super(name, message, logContext, isTrusted);
   }
 }
 
-export type ErrorResponse = {
+export type ResponseError = {
   message: string;
   code: number;
 };

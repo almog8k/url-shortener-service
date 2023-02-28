@@ -1,6 +1,6 @@
-import connect, { DatabaseConnection, sql } from "@databases/sqlite";
-import * as configurationProvider from "../utils/configuration/configuration-provider";
-import { logger } from "../utils/logger/logger-wrapper";
+import connect, { DatabaseConnection } from "@databases/sqlite";
+import * as configurationProvider from "../configuration/configuration-provider";
+import { logger } from "../logger/logger-wrapper";
 
 let dbConnection: DatabaseConnection;
 
@@ -13,7 +13,7 @@ export default function getDbConnection() {
     }
     return dbConnection;
   } catch (error) {
-    logger.error(`Failed to connect DB`);
+    logger.error(`Failed to connect DB`); //TO DO handle the error here terminate the application
     throw error;
   }
 }

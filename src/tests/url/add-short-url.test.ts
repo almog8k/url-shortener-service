@@ -1,7 +1,7 @@
-import { startWebServer, stopWebServer } from "../entry-points/api/server";
 import axios, { AxiosInstance, CreateAxiosDefaults } from "axios";
-import { UrlResponse } from "../domain/url-response";
 import { randomUUID } from "crypto";
+import { startWebServer, stopWebServer } from "../../server";
+import { UrlResponse } from "../../url/url-response";
 
 let axiosAPIClient: AxiosInstance;
 beforeAll(async () => {

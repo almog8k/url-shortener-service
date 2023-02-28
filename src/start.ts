@@ -1,5 +1,5 @@
 import { logger } from "./utils/logger/logger-wrapper";
-import { startWebServer } from "./entry-points/api/server";
+import { startWebServer } from "./server";
 import util from "util";
 import { AppError, errorHandler } from "./utils/errors/error-handling";
 import { SharedLogContext } from "./utils/logger/definition";

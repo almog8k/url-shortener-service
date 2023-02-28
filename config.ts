@@ -1,4 +1,4 @@
-import { ConfigSchema } from "./utils/configuration/configuration-schema";
+import { ConfigSchema } from "./src/utils/configuration/configuration-schema";
 
 export const configurationSchema: ConfigSchema = {
   port: {

@@ -1,7 +1,7 @@
 import { generateShortId } from "./shortener-service";
 import { UrlDTO } from "./url-schema";
 import { assertUrlIsValid } from "./url-validator";
-import * as urlRepository from "../data-access/url-repository";
+import * as urlRepository from "./url-repository";
 import { UrlResponse } from "./url-response";
 import { logger } from "../utils/logger/logger-wrapper";
 import { SharedLogContext } from "../utils/logger/definition";

@@ -1,5 +1,5 @@
 {
-  "exclude": [".dist", "test", "jest.config.js"],
+  "exclude": [".dist", "src/url/url-tests", "jest.config.js"],
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",

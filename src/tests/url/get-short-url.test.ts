@@ -1,7 +1,7 @@
-import { startWebServer, stopWebServer } from "../entry-points/api/server";
+import { startWebServer, stopWebServer } from "../../server";
 import axios, { AxiosInstance, CreateAxiosDefaults } from "axios";
-import { UrlResponse } from "../domain/url-response";
 import { randomUUID } from "crypto";
+import { UrlResponse } from "../../url/url-response";
 
 let axiosAPIClient: AxiosInstance;
 beforeAll(async () => {
@@ -27,7 +27,7 @@ describe("/api", () => {
         urlAddress: `https://www.google.com/${randomUUID()}`,
       };
 
-      const shortenUrlResponse = await axiosAPIClient.post<UrlResponse>(
+      const shortenUrlResponse = await axiosAPIClient.post<UrlRclearesponse>(
         "/shorten-urls",
         url
       );
