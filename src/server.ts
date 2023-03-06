@@ -11,7 +11,8 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import path from "path";
 import { errorHandler } from "./utils/errors/error-handling";
-import { BaseError } from "./utils/errors/errors";
+import { AppError, ResponseError } from "./utils/errors/errors";
+
 //To DO separate the server builder from the listener
 let connection: Server;
 
@@ -43,7 +44,10 @@ async function openConnection(
   return new Promise((resolve) => {
     const portToListenTo = configurationProvider.getValue<number>("port");
     const webServerPort = portToListenTo || 0;
-    logger.info(`server is about to listen to port ${webServerPort}`);
+    logger.info({
+      msg: "server is about to listen to port",
+      metadata: { webServerPort },
+    });
     connection = expressApp.listen(webServerPort, () => {
       errorHandler.listenToErrorEvents(connection);
       resolve(connection.address() as AddressInfo);
@@ -54,7 +58,7 @@ async function openConnection(
 function defineErrorHandlingMiddleware(expressApp: express.Application) {
   expressApp.use(
     async (
-      error: BaseError,
+      error: AppError,
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
@@ -64,15 +68,20 @@ function defineErrorHandlingMiddleware(expressApp: express.Application) {
           error.isTrusted = true;
         }
       }
-      const handledError = errorHandler.handleError(error);
-      const errorResponse = errorHandler.getErrorResponse(handledError);
-      res.status(errorResponse.code).json(errorResponse).end();
+      errorHandler.handleError(error);
+      const httpError = errorHandler.httpErrorMapper(error);
+      const errorResponse: ResponseError = {
+        message: httpError.message,
+        code: httpError.code,
+      };
+      res.status(httpError.code).json(errorResponse).end();
     }
   );
 }
 
-function defineSwaggerDoc(expressApp: express.Application) {
-  const swaggerDocument = YAML.load(path.join(__dirname, "../../openapi.yaml"));
+function defineSwaggerDoc(expressApp: express.Application): void {
+  const swaggerPath = configurationProvider.getValue<string>("swagger");
+  const swaggerDocument = YAML.load(path.join(__dirname, swaggerPath));
   expressApp.use(
     "/api-docs",
     swaggerUi.serve,
@@ -84,7 +93,7 @@ async function stopWebServer() {
   return new Promise<void>((resolve) => {
     if (connection !== undefined) {
       connection.close(() => {
-        logger.info("Stopping web server");
+        logger.info({ msg: "Stopping web server" });
         resolve();
       });
     }

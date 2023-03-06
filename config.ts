@@ -33,4 +33,11 @@ export const configurationSchema: ConfigSchema = {
       env: "DB_NAME",
     },
   },
+  swagger: {
+    doc: "The default swagger file path",
+    format: "String",
+    default: "../../openapi.yaml",
+    env: "SWAGER_PATH",
+    nullable: true,
+  },
 };

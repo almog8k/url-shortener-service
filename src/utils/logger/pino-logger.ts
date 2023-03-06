@@ -4,7 +4,7 @@ import {
   DestinationStream,
   LoggerOptions,
 } from "pino";
-import { LOG_LEVEL, Logger } from "./definition";
+import { LOG_LEVEL, Logger, LogData } from "./definition";
 
 export default class PinoLogger implements Logger {
   private readonly logger: PinoLoggerImpl;
@@ -29,19 +29,19 @@ export default class PinoLogger implements Logger {
     this.logger = pino(opts);
   }
 
-  debug(message: string, ...args: unknown[]): void {
-    this.logger.debug(message, ...args);
+  debug(log: LogData): void {
+    this.logger.debug(log);
   }
 
-  error(message: string, ...args: unknown[]): void {
-    this.logger.error(message, ...args);
+  error(log: LogData): void {
+    this.logger.error(log);
   }
 
-  info(message: string, ...args: unknown[]): void {
-    this.logger.info(message, ...args);
+  info(log: LogData): void {
+    this.logger.info(log);
   }
 
-  warning(message: string, ...args: unknown[]): void {
-    this.logger.warn(message, ...args);
+  warning(log: LogData): void {
+    this.logger.warn(log);
   }
 }

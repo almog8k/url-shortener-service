@@ -1,63 +1,49 @@
 import express from "express";
-// import { logger } from "../../utils/logger/logger-wrapper";
 import util from "util";
 import * as newShortUrlUseCase from "./new-short-url-use-case";
 import { HttpStatusCode } from "axios";
-import { ResponseError } from "../utils/errors/errors";
 import { logger } from "../utils/logger/logger-wrapper";
+import { validateUrl } from "./url-validator";
+import { UrlDTO } from "./url-schema";
 
-export default function defineRoutes(expressApp: express.Application) {
-  const router = express.Router();
-
-  router.post("/", async (req, res, next) => {
-    try {
-      logger.info(
-        `Url-Shortener API was called to add new short url ${util.inspect(
-          req.body
-        )} `
-      );
-      const urlResponse = await newShortUrlUseCase.addUrl(req.body);
-
-      return res.status(HttpStatusCode.Created).json(urlResponse);
-    } catch (error) {
-      next(error);
-      return undefined;
-    }
+export async function createUrl(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) {
+  logger.info({
+    msg: `Url-Shortener API was called to add new short url`,
+    metadata: { reqBody: req.body },
   });
+  try {
+    const url: UrlDTO = validateUrl(req.body);
+    const urlResponse = await newShortUrlUseCase.addUrl(url.urlAddress);
+    return res.status(HttpStatusCode.Created).json(urlResponse);
+  } catch (error) {
+    return next(error);
+  }
+}
 
-  router.get("/:shortUrlId", async (req, res, next) => {
-    try {
-      const { shortUrlId } = req.params;
-      logger.info(
-        `Url-Shortener API was called to redirect short URL to original URl ${util.inspect(
-          req.params
-        )} `
-      );
+export async function getUrl(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) {
+  try {
+    logger.info({
+      msg: "Url-Shortener API was called to redirect short URL to original URl",
+      metadata: { reqParams: req.params },
+    });
+    const { shortUrlId } = req.params;
+    const originalUrl = await newShortUrlUseCase.getUrlByUrlShortID(shortUrlId);
 
-      const originalUrl = await newShortUrlUseCase.getUrlByUrlShortID(
-        shortUrlId
-      );
+    logger.info({
+      msg: "Redirected successfully",
+      metadata: { shortUrlId, originalUrl },
+    });
 
-      if (!originalUrl) {
-        logger.info(`Short urlId "${shortUrlId}" was not found".`);
-        const notFoundResponse: ResponseError = {
-          message: "URL not found",
-          code: HttpStatusCode.NotFound,
-        };
-        res.status(notFoundResponse.code).json(notFoundResponse);
-        return;
-      }
-
-      logger.info(
-        `Short urlId "${shortUrlId}" was successfully redirected to "${originalUrl}".`
-      );
-
-      res.redirect(HttpStatusCode.MovedPermanently, originalUrl);
-    } catch (error) {
-      next(error);
-      return undefined;
-    }
-  });
-
-  expressApp.use("/shorten-urls", router);
+    res.redirect(HttpStatusCode.MovedPermanently, originalUrl);
+  } catch (error) {
+    return next(error);
+  }
 }

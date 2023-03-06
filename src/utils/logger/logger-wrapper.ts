@@ -1,4 +1,4 @@
-import { Logger, LoggerConfiguration } from "./definition";
+import { LogData, Logger, LoggerConfiguration } from "./definition";
 import PinoLogger from "../../utils/logger/pino-logger";
 
 export class LoggerWrapper implements Logger {
@@ -21,25 +21,25 @@ export class LoggerWrapper implements Logger {
     this.underlyingLogger = null;
   }
 
-  debug(message: string, ...args: unknown[]): void {
+  debug(log: LogData): void {
     this.configureLogger({}, false);
-    this.underlyingLogger?.debug(message, ...args);
+    this.underlyingLogger?.debug(log);
   }
 
-  error(message: string, ...args: unknown[]): void {
+  error(log: LogData): void {
     this.configureLogger({}, false);
-    this.underlyingLogger?.error(message, ...args);
+    this.underlyingLogger?.error(log);
   }
 
-  info(message: string, ...args: unknown[]): void {
+  info(log: LogData): void {
     // If never initialized, the set default configuration
     this.configureLogger({}, false);
-    this.underlyingLogger?.info(message, ...args);
+    this.underlyingLogger?.info(log);
   }
 
-  warning(message: string, ...args: unknown[]): void {
+  warning(log: LogData): void {
     this.configureLogger({}, false);
-    this.underlyingLogger?.warning(message, ...args);
+    this.underlyingLogger?.warning(log);
   }
 }
 

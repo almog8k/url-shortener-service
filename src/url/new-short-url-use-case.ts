@@ -1,66 +1,75 @@
 import { generateShortId } from "./shortener-service";
-import { UrlDTO } from "./url-schema";
-import { assertUrlIsValid } from "./url-validator";
 import * as urlRepository from "./url-repository";
 import { UrlResponse } from "./url-response";
 import { logger } from "../utils/logger/logger-wrapper";
-import { SharedLogContext } from "../utils/logger/definition";
-import { UrlExistError } from "./url-errors";
+import {
+  ResourceExistsError,
+  ResourceNotFoundError,
+  TooManyAttemptsError,
+} from "../utils/errors/errors";
 
-const SHARED_LOG_CONTEXT: SharedLogContext = {
-  dirname: __dirname,
-  filename: __filename,
-};
+export async function addUrl(url: string): Promise<UrlResponse> {
+  await assertUrlDoesNotExist(url);
 
-export async function addUrl(url: UrlDTO): Promise<UrlResponse> {
-  SHARED_LOG_CONTEXT.functionName = addUrl.name;
-  SHARED_LOG_CONTEXT.metadata = { url };
-
-  assertUrlIsValid(url);
-  const { urlAddress } = url;
-
-  await assertUrlDoesNotExist(urlAddress);
-
-  const urlShortId = await getUniqueShortId(urlAddress);
+  const urlShortId = await getUniqueShortId(url);
 
   await urlRepository.addUrl({
-    originalUrl: urlAddress,
+    originalUrl: url,
     urlShortId,
   });
 
-  logger.info(
-    `Added short URL with ID ${urlShortId} and original URL ${url.urlAddress}`
-  );
-  return { urlShortId, originalUrl: url.urlAddress };
-}
+  logger.info({
+    msg: "Added successfully short url ID and original URL",
+    metadata: { url, urlShortId },
+  });
 
-async function assertUrlDoesNotExist(urlAddress: string): Promise<void> {
-  SHARED_LOG_CONTEXT.functionName = assertUrlDoesNotExist.name;
-  SHARED_LOG_CONTEXT.metadata = { urlAddress };
-  const urlExist = await urlRepository.isUrlExist(urlAddress);
-  if (urlExist) {
-    throw new UrlExistError(SHARED_LOG_CONTEXT);
-  }
-}
-
-async function getUniqueShortId(urlAddress: string): Promise<string> {
-  let attempts = 0;
-  let exist = false;
-  let urlShortId;
-  logger.debug(`Generating short URL ID with  URL ${urlAddress}`);
-  do {
-    urlShortId = generateShortId(urlAddress);
-    exist = await urlRepository.isUrlShortIdExist(urlShortId);
-    attempts++;
-  } while (exist);
-
-  logger.debug(
-    `Generated short URL ID ${urlShortId} after ${attempts} attempts`
-  );
-  return urlShortId;
+  return { urlShortId, originalUrl: url };
 }
 
 export async function getUrlByUrlShortID(urlShortId: string) {
   const originalUrl = await urlRepository.getUrlByShortID(urlShortId);
+  if (!originalUrl) {
+    logger.warning({
+      msg: "Short urlId was not found",
+      metadata: { urlShortId },
+    });
+    throw new ResourceNotFoundError("Url was not found");
+  }
   return originalUrl;
+}
+
+async function assertUrlDoesNotExist(urlAddress: string): Promise<void> {
+  const urlExist = await urlRepository.isUrlExist(urlAddress);
+  const metadata = { urlAddress, urlExist };
+  if (urlExist) {
+    logger.warning({
+      msg: "Url already exists ",
+      metadata,
+    });
+    throw new ResourceExistsError("Url exist");
+  }
+  logger.info({ msg: "Url does not exist", metadata });
+}
+
+async function getUniqueShortId(urlAddress: string): Promise<string> {
+  const maxAttempts = 3;
+  let attempts = 0;
+  let exist = false;
+  let urlShortId;
+  logger.debug({ msg: "Generating short URL ID", metadata: { urlAddress } });
+  do {
+    urlShortId = generateShortId(urlAddress);
+    exist = await urlRepository.isUrlShortIdExist(urlShortId);
+    attempts++;
+    if (attempts === maxAttempts) {
+      throw new TooManyAttemptsError(
+        "Too many attempts for generating shortId"
+      );
+    }
+  } while (exist);
+  logger.debug({
+    msg: "Generated short URL ID",
+    metadata: { urlShortId, attempts },
+  });
+  return urlShortId;
 }

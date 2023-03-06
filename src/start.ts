@@ -16,12 +16,11 @@ async function start() {
 
 start()
   .then((startResponses) => {
-    logger.info(
-      `The app has started successfully ${util.inspect(startResponses)}}`
-    );
+    logger.info({
+      msg: "The app has started successfully",
+      metadata: { startResponses },
+    });
   })
   .catch((error) => {
-    errorHandler.handleError(
-      new AppError("startup-failure", error.message, SHARED_LOG_CONTEXT, 500)
-    );
+    errorHandler.handleError(new AppError("startup-failure", error.message));
   });

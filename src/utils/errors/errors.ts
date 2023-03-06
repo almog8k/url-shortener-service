@@ -1,33 +1,46 @@
 import { HttpStatusCode } from "axios";
 
-import { SharedLogContext } from "../logger/definition";
-
-export class BaseError extends Error {
+export class AppError extends Error {
   constructor(
     public name: string,
     public message: string,
-    public logContext?: SharedLogContext,
     public isTrusted = true
   ) {
     super(message);
   }
 }
 
-export class ValidationError extends BaseError {
-  constructor(public message: string, logContext: SharedLogContext) {
-    super("Validation Error", message, logContext);
+export class InvalidInputError extends AppError {
+  constructor(public message: string) {
+    super("Invalid Input Error", message);
   }
 }
 
-export class AppError extends BaseError {
+export class ResourceNotFoundError extends AppError {
+  constructor(public message: string) {
+    super("Resource not Found Error", message);
+  }
+}
+
+export class ResourceExistsError extends AppError {
+  constructor(public message: string) {
+    super("Resource Already Exists Error", message);
+  }
+}
+
+export class TooManyAttemptsError extends AppError {
+  constructor(public message: string) {
+    super("Too many attempts Error", message);
+  }
+}
+
+export class HttpError extends AppError {
   constructor(
     public name: string,
     public message: string,
-    public logContext?: SharedLogContext,
-    public HTTPStatus: number = HttpStatusCode.InternalServerError,
-    public isTrusted = true
+    public code: number = HttpStatusCode.InternalServerError
   ) {
-    super(name, message, logContext, isTrusted);
+    super(name, message);
   }
 }
 

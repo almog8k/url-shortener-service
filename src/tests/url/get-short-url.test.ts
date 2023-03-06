@@ -27,7 +27,7 @@ describe("/api", () => {
         urlAddress: `https://www.google.com/${randomUUID()}`,
       };
 
-      const shortenUrlResponse = await axiosAPIClient.post<UrlRclearesponse>(
+      const shortenUrlResponse = await axiosAPIClient.post<UrlResponse>(
         "/shorten-urls",
         url
       );

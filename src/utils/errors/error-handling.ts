@@ -1,9 +1,15 @@
 import { logger } from "../logger/logger-wrapper";
 import * as Http from "http";
 import util from "util";
-import { AppError, ResponseError, ValidationError } from "./errors";
+import {
+  AppError,
+  HttpError,
+  InvalidInputError,
+  ResourceExistsError,
+  ResourceNotFoundError,
+  TooManyAttemptsError,
+} from "./errors";
 import { HttpStatusCode } from "axios";
-import { UrlExistError } from "../../url/url-errors";
 
 let httpServerRef: Http.Server;
 
@@ -14,21 +20,21 @@ const errorHandler = {
       await errorHandler.handleError(error);
     });
 
-    process.on("unhandledRejection", async (reason) => {
+    process.on("unhandledRejection", async (reason: Error) => {
       await errorHandler.handleError(reason);
     });
 
     process.on("SIGTERM", async () => {
-      logger.error(
-        "App received SIGTERM event, try to gracefully close the server"
-      );
+      logger.error({
+        msg: "App received SIGTERM event, try to gracefully close the server",
+      });
       await terminateHttpServerAndExit();
     });
 
     process.on("SIGINT", async () => {
-      logger.error(
-        "App received SIGINT event, try to gracefully close the server"
-      );
+      logger.error({
+        msg: "App received SIGINT event, try to gracefully close the server",
+      });
       await terminateHttpServerAndExit();
     });
   },
@@ -36,12 +42,11 @@ const errorHandler = {
   handleError: (errorToHandle: unknown) => {
     try {
       const appError: AppError = normalizeError(errorToHandle);
-      logger.error(`${appError.message}: ${util.inspect(appError)}`);
+      logger.error({ msg: appError.message, metadata: { appError } });
 
       if (!appError.isTrusted) {
         terminateHttpServerAndExit();
       }
-      return appError;
     } catch (handlingError: unknown) {
       process.stdout.write(
         "The error handler failed, here are the handler failure and then the origin error that it tried to handle"
@@ -50,11 +55,33 @@ const errorHandler = {
       process.stdout.write(JSON.stringify(errorToHandle));
     }
   },
-  getErrorResponse: (error: AppError | undefined): ResponseError => {
-    if (error === undefined) {
-      return { message: "Internal server error", code: 500 };
+
+  httpErrorMapper: (error: AppError): HttpError => {
+    if (error instanceof ResourceNotFoundError) {
+      return new HttpError("Not Found", error.message, HttpStatusCode.NotFound);
     }
-    return { message: error.message, code: error.HTTPStatus };
+    if (error instanceof InvalidInputError) {
+      return new HttpError(
+        "Bad Request",
+        error.message,
+        HttpStatusCode.BadRequest
+      );
+    }
+    if (error instanceof ResourceExistsError) {
+      return new HttpError("Conflict", error.message, HttpStatusCode.Conflict);
+    }
+    if (error instanceof TooManyAttemptsError) {
+      return new HttpError(
+        "Internal Server Error",
+        error.message,
+        HttpStatusCode.InternalServerError
+      );
+    }
+    return new HttpError(
+      "Internal Server Error",
+      error.message,
+      HttpStatusCode.InternalServerError
+    );
   },
 };
 
@@ -68,24 +95,6 @@ const terminateHttpServerAndExit = async () => {
 const normalizeError = (errorToHandle: unknown): AppError => {
   if (errorToHandle instanceof AppError) {
     return errorToHandle;
-  }
-  if (errorToHandle instanceof ValidationError) {
-    const appError = new AppError(
-      errorToHandle.name,
-      errorToHandle.message,
-      errorToHandle.logContext,
-      HttpStatusCode.BadRequest
-    );
-    return appError;
-  }
-  if (errorToHandle instanceof UrlExistError) {
-    const appError = new AppError(
-      errorToHandle.name,
-      errorToHandle.message,
-      errorToHandle.logContext,
-      HttpStatusCode.Conflict
-    );
-    return appError;
   }
   if (errorToHandle instanceof Error) {
     const appError = new AppError(errorToHandle.name, errorToHandle.message);
