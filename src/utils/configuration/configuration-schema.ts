@@ -9,11 +9,39 @@ export type ConfigSchema = {
     env: string;
   };
   DB: {
-    dbName: {
+    database: {
       doc: string;
       format: "String";
-      default: String;
+      default: string;
       nullable: boolean;
+      env: string;
+    };
+    port: {
+      doc: string;
+      format: "Number";
+      default: number;
+      nullable: boolean;
+      env: string;
+    };
+    host: {
+      doc: string;
+      format: "String";
+      default: string;
+      nullable: boolean;
+      env: string;
+    };
+    user: {
+      doc: string;
+      format: "String";
+      default: string;
+      nullable: boolean;
+      env: string;
+    };
+    password: {
+      doc: string;
+      format: "String";
+      default: string;
+      nullable: false;
       env: string;
     };
   };

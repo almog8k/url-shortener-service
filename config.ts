@@ -25,7 +25,35 @@ export const configurationSchema: ConfigSchema = {
     },
   },
   DB: {
-    dbName: {
+    user: {
+      doc: "The DB connection user name",
+      format: "String",
+      default: "almogk",
+      nullable: false,
+      env: "DB_USERNAME",
+    },
+    port: {
+      doc: "The DB port",
+      format: "Number",
+      default: 5432,
+      nullable: false,
+      env: "DB_PORT",
+    },
+    host: {
+      doc: "The DB cluster URL",
+      format: "String",
+      default: "localhost",
+      nullable: false,
+      env: "DB_URL",
+    },
+    password: {
+      doc: "The DB connection password. Don't put production code here",
+      format: "String",
+      default: "Aa2023!",
+      nullable: false,
+      env: "DB_PASSWORD",
+    },
+    database: {
       doc: "The default database name",
       format: "String",
       default: "url_db",

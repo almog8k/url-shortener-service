@@ -70,6 +70,12 @@ function defineErrorHandlingMiddleware(expressApp: express.Application) {
       }
       errorHandler.handleError(error);
       const httpError = errorHandler.httpErrorMapper(error);
+
+      logger.error({
+        msg: httpError.message,
+        metadata: { httpError },
+      });
+
       const errorResponse: ResponseError = {
         message: httpError.message,
         code: httpError.code,

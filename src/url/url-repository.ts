@@ -1,8 +1,5 @@
-import { sql } from "@databases/sqlite";
-import getDbConnection from "../utils/DB/db-connection";
-import { randomUUID } from "crypto";
+import getDbConnection from "../utils/DB/pg-db-connection";
 import { logger } from "../utils/logger/logger-wrapper";
-import util from "util";
 
 type UrlRecord = {
   id: string;
@@ -13,9 +10,11 @@ type UrlRecord = {
 export async function addUrl(Url: Omit<UrlRecord, "id">): Promise<void> {
   try {
     logger.debug({ msg: "Trying to add url", metadata: { Url } });
-    await getDbConnection()?.query(
-      sql`INSERT INTO url_details (id, original_url, url_short_id)
-              VALUES(${randomUUID()}, ${Url.originalUrl}, ${Url.urlShortId});`
+    const client = await getDbConnection();
+    await client?.query(
+      `INSERT INTO url_details ( url_short_id, original_url)
+              VALUES($1, $2);`,
+      [Url.urlShortId, Url.originalUrl]
     );
     logger.debug({ msg: "Successfully added url", metadata: { Url } });
   } catch (error: any) {
@@ -32,11 +31,15 @@ export async function getUrlByShortID(
       msg: "Trying to get original url by shortId",
       metadata: { shortId },
     });
-    const results = await getDbConnection()?.query(sql`
-    SELECT original_url FROM url_details WHERE url_short_id=${shortId};
-  `);
-    if (results && results.length) {
-      const originalUrl = results[0].original_url;
+    const client = await getDbConnection();
+    const results = await client?.query(
+      `
+    SELECT original_url FROM url_details WHERE url_short_id=$1;
+  `,
+      [shortId]
+    );
+    if (results && results.rowCount > 0) {
+      const originalUrl = results.rows[0].original_url;
       logger.debug({
         msg: "Found original url",
         metadata: { originalUrl },
@@ -70,10 +73,14 @@ export async function isUrlExist(urlAddress: string): Promise<boolean> {
       msg: "Trying to check if url exist",
       metadata: { urlAddress },
     });
-    const results = await getDbConnection()?.query(sql`
-    SELECT original_url FROM url_details WHERE original_url=${urlAddress};
-  `);
-    return results !== undefined && results.length > 0;
+    const client = await getDbConnection();
+    const results = await client?.query(
+      `
+    SELECT original_url FROM url_details WHERE original_url=$1
+  `,
+      [urlAddress]
+    );
+    return results !== undefined && results.rowCount > 0;
   } catch (error) {
     logger.error({
       msg: "Failed to check if url exist url",
