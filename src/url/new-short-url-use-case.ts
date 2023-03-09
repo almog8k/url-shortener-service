@@ -68,7 +68,7 @@ async function getUniqueShortId(urlAddress: string): Promise<string> {
     }
   } while (exist);
   logger.debug({
-    msg: "Generated short URL ID",
+    msg: "Successfully generated URL short ID",
     metadata: { urlShortId, attempts },
   });
   return urlShortId;

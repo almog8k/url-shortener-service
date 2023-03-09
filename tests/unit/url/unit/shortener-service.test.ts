@@ -1,4 +1,4 @@
-import { generateShortId, sha256 } from "../../url/shortener-service";
+import { generateShortId, sha256 } from "../../../../src/url/shortener-service";
 
 describe("generateShortId", () => {
   test("should generate a 7 character string", () => {

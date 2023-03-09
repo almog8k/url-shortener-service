@@ -4,9 +4,12 @@
   "description": "API service for shortening URLs",
   "main": "./.dist/src/start.js",
   "scripts": {
-    "test:dev": "LOGGER_LEVEL=info PRETTY_PRINT=true DB_NAME=url_test_db jest ",
+    "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
+    "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
+    "test": "npm run test:unit && npm run test:integration",
     "start:dev": "PORT=3000 LOGGER_LEVEL=debug PRETTY_PRINT=true nodemon start.ts",
-    "build": "tsc"
+    "build": "tsc && npm run assets:copy",
+    "assets:copy": "copyfiles -f ./openapi.yaml ./.dist && copyfiles ./package.json .dist"
   },
   "author": "Almog Kusayev",
   "license": "ISC",
@@ -30,6 +33,7 @@
     "@types/pg": "^8.6.6",
     "axios": "^1.3.3",
     "convict": "^6.2.4",
+    "copyfiles": "^2.4.1",
     "express": "^4.17.17",
     "helmet": "^6.0.1",
     "pg": "^8.9.0",

@@ -28,9 +28,9 @@ export const configurationSchema: ConfigSchema = {
     user: {
       doc: "The DB connection user name",
       format: "String",
-      default: "almogk",
+      default: "postgres",
       nullable: false,
-      env: "DB_USERNAME",
+      env: "POSTGRES_USER",
     },
     port: {
       doc: "The DB port",
@@ -42,21 +42,21 @@ export const configurationSchema: ConfigSchema = {
     host: {
       doc: "The DB cluster URL",
       format: "String",
-      default: "localhost",
+      default: "db",
       nullable: false,
-      env: "DB_URL",
+      env: "POSTGRES_DB",
     },
     password: {
       doc: "The DB connection password. Don't put production code here",
       format: "String",
-      default: "Aa2023!",
+      default: "postgres",
       nullable: false,
-      env: "DB_PASSWORD",
+      env: "POSTGRES_PASSWORD",
     },
     database: {
       doc: "The default database name",
       format: "String",
-      default: "url_db",
+      default: "urldb",
       nullable: false,
       env: "DB_NAME",
     },
@@ -64,7 +64,7 @@ export const configurationSchema: ConfigSchema = {
   swagger: {
     doc: "The default swagger file path",
     format: "String",
-    default: "../../openapi.yaml",
+    default: "../openapi.yaml",
     env: "SWAGER_PATH",
     nullable: true,
   },
