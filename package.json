@@ -2,12 +2,13 @@
   "name": "url-shortener-service",
   "version": "1.0.0",
   "description": "API service for shortening URLs",
-  "main": "./.dist/src/start.js",
+  "main": "./src/start.ts",
   "scripts": {
     "test:unit": "jest --config=./tests/configurations/unit/jest.config.js",
     "test:integration": "jest --config=./tests/configurations/integration/jest.config.js",
     "test": "npm run test:unit && npm run test:integration",
-    "start:dev": "PORT=3000 LOGGER_LEVEL=debug PRETTY_PRINT=true nodemon start.ts",
+    "start:prod": "npm run build && node ./.dist/src/start.js",
+    "start:dev": "PORT=3000 LOGGER_LEVEL=debug PRETTY_PRINT=true nodemon ./src/start.ts",
     "build": "tsc && npm run assets:copy",
     "assets:copy": "copyfiles -f ./openapi.yaml ./.dist && copyfiles ./package.json .dist"
   },
